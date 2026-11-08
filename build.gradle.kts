@@ -8,7 +8,7 @@ group = "ru.voidrp"
 version = "0.4.0"
 
 kotlin {
-    // Paper 26.2's own API is Java 25, so it takes a 25 compiler to read it...
+    // Paper 26.3's own API is Java 25, so it takes a 25 compiler to read it...
     jvmToolchain(25)
     compilerOptions {
         // ...but the plugin itself is emitted for 21, because a 1.21.6 server runs on 21
@@ -61,7 +61,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:26.2.build.124-stable")
+    compileOnly("io.papermc.paper:paper-api:26.3.build.243-stable")
     // Paper ships Gson at runtime; we only need it to read our own width table.
     compileOnly("com.google.code.gson:gson:2.14.0")
     // Optional: read the player's look the moment it arrives instead of on the next tick.
@@ -77,7 +77,7 @@ dependencies {
 
     // The tests read the pack we build and add up a line the way the client would.
     testImplementation(kotlin("test"))
-    testImplementation("io.papermc.paper:paper-api:26.2.build.124-stable")
+    testImplementation("io.papermc.paper:paper-api:26.3.build.243-stable")
     testImplementation("com.google.code.gson:gson:2.14.0")
 }
 
@@ -118,6 +118,13 @@ tasks.test {
 tasks.shadowJar {
     archiveClassifier.set("all")
 }
+
+val collectPluginArtifact = tasks.register<Copy>("collectPluginArtifact") {
+    dependsOn(tasks.shadowJar)
+    from(tasks.shadowJar.flatMap { it.archiveFile })
+    into(layout.projectDirectory.dir("../plugin"))
+}
+tasks.shadowJar { finalizedBy(collectPluginArtifact) }
 
 tasks.build {
     dependsOn(tasks.shadowJar)

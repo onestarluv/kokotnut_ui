@@ -79,8 +79,8 @@ class PackBuilder(
          */
         const val FORMAT_LEGACY_MAX = 87
 
-        /** 26.2 — the first version with the new shader layout. */
-        const val FORMAT_MODERN_MIN = 88
+        /** 26.3 — the SPIR-V text shaders shipped by this build. */
+        const val FORMAT_MODERN_MIN = 97
 
         /** Far enough ahead that a new release does not silently drop the pack. */
         const val FORMAT_NEWEST = 200
@@ -208,6 +208,8 @@ class PackBuilder(
         {
           "pack": {
             "pack_format": ${if (legacy) FORMAT_OLDEST else FORMAT_MODERN_MIN},
+            "min_format": ${if (legacy) "[$FORMAT_OLDEST, 0]" else "[$FORMAT_MODERN_MIN, 1]"},
+            "max_format": [${if (legacy) FORMAT_LEGACY_MAX else FORMAT_NEWEST}, 0],
             "supported_formats": { "min_inclusive": ${
         if (legacy) FORMAT_OLDEST else if (withOverlay) FORMAT_OLDEST else FORMAT_MODERN_MIN
     }, "max_inclusive": ${if (legacy) FORMAT_LEGACY_MAX else FORMAT_NEWEST} },

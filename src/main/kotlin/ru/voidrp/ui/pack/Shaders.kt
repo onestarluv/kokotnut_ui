@@ -300,8 +300,8 @@ object Shaders {
         get() {
             val vanilla = String(Shaders::class.java.getResourceAsStream("/vanilla/text.fsh")!!.readBytes())
             val declared = vanilla.replace(
-                "in vec2 texCoord0;",
-                "in vec2 texCoord0;\nin float voidrpShape;",
+                "layout(location = 3) in vec2 texCoord0;",
+                "layout(location = 3) in vec2 texCoord0;\nlayout(location = 4) in float voidrpShape;",
             )
             check(declared != vanilla) { "No texCoord0 in the vanilla fragment shader" }
             val patched = declared.replace(
@@ -322,8 +322,21 @@ object Shaders {
         if (!motion) source else source.replaceFirst("#version 330", "#version 330\n#define VOIDRP_MOTION 1")
 
     val TEXT_VSH_MODERN: String get() = withMotion(withParticles(MODERN_TEMPLATE))
+        // 26.3 compiles GLSL through SPIR-V, with explicit interfaces and vertex indices.
+        .replace("#version 330", "#version 330\n#extension GL_ARB_separate_shader_objects : require")
+        .replace("#moj_import", "#include")
+        .replace("in vec3 Position;", "layout(location = 0) in vec3 Position;")
+        .replace("in vec4 Color;", "layout(location = 1) in vec4 Color;")
+        .replace("in vec2 UV0;", "layout(location = 2) in vec2 UV0;")
+        .replace("in ivec2 UV2;", "layout(location = 3) in ivec2 UV2;")
+        .replace("out float sphericalVertexDistance;", "layout(location = 0) out float sphericalVertexDistance;")
+        .replace("out float cylindricalVertexDistance;", "layout(location = 1) out float cylindricalVertexDistance;")
+        .replace("out vec4 vertexColor;", "layout(location = 2) out vec4 vertexColor;")
+        .replace("out vec2 texCoord0;", "layout(location = 3) out vec2 texCoord0;")
+        .replace("out float voidrpShape;", "layout(location = 4) out float voidrpShape;")
+        .replace("gl_VertexID", "gl_VertexIndex")
 
-    /** 26.2 and newer: a single `text.vsh` with variants behind #define. */
+    /** Base layout, adapted to 26.3's SPIR-V interface by TEXT_VSH_MODERN. */
     private val MODERN_TEMPLATE = """
         #version 330
 

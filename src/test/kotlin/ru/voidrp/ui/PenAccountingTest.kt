@@ -184,8 +184,8 @@ class PenAccountingTest {
     fun `the pack for older clients carries the shader they read`() {
         // Mojang moved the text shader in 26.2, and a pack names its files outright, so
         // one archive cannot serve both. This is the other archive: same glyphs, same
-        // fonts, the shader under the name a 1.21.6–26.1.2 client looks for. The two
-        // ranges have to meet without a gap, or some client is offered neither pack.
+        // fonts, the shader under the name a 1.21.6–26.1.2 client looks for.
+        // This port targets 26.3's SPIR-V renderer; 26.2 needs its own shader pack.
         val file = java.io.File.createTempFile("voidrp-ui-legacy", ".zip").apply { deleteOnExit() }
         PackBuilder(legacy = true).build(file)
         val paths = mutableListOf<String>()
@@ -213,11 +213,11 @@ class PenAccountingTest {
                 "\"max_inclusive\": ${PackBuilder.FORMAT_LEGACY_MAX}" in meta,
             "the older pack promises the wrong versions:\n$meta",
         )
-        assertEquals(
-            PackBuilder.FORMAT_MODERN_MIN,
-            PackBuilder.FORMAT_LEGACY_MAX + 1,
-            "a gap is left between the packs: a client of that version gets neither",
-        )
+        val modernMeta = com.google.gson.JsonParser.parseString(ClientSimulator.packEntry("pack.mcmeta"))
+            .asJsonObject.getAsJsonObject("pack")
+        // Current clients require these even if supported_formats is also present.
+        assertTrue(modernMeta.has("min_format"), "missing mandatory min_format")
+        assertTrue(modernMeta.has("max_format"), "missing mandatory max_format")
     }
 
     @Test

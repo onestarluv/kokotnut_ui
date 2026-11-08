@@ -17,6 +17,12 @@ icons and a cursor that answers the mouse.
 
 A Paper plugin, MIT licensed.
 
+> This local port targets Paper/Minecraft **26.3**. Its modern resource pack uses
+> 26.3's SPIR-V text shader interface (resource format 97.1); it does not support
+> 26.2 clients. The original project's compatibility claims below describe upstream.
+> After replacing the plugin JAR, restart the server to regenerate the packs and
+> run `/vui pack` to download the rebuilt pack. Self-hosted packs must also be replaced.
+
 Clients from 1.21.6 to 26.1.2 are served too. Mojang renamed the text shader in 26.2 and a
 pack names its files outright, so one archive cannot cover both versions — the plugin
 builds two packs and hands each player the one their client can read.
